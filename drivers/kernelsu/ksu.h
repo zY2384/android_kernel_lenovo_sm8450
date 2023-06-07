@@ -3,7 +3,6 @@
 
 #include "linux/types.h"
 #include "linux/workqueue.h"
-
 #ifndef KSU_GIT_VERSION
 #warning                                                                       \
 	"KSU_GIT_VERSION not defined! It is better to make KernelSU a git submodule!"
