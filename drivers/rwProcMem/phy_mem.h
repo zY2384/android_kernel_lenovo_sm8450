@@ -1,4 +1,4 @@
-﻿#ifndef PHY_MEM_H_
+#ifndef PHY_MEM_H_
 #define PHY_MEM_H_
 //声明
 //////////////////////////////////////////////////////////////////////////
@@ -78,21 +78,21 @@ MY_STATIC size_t get_pagemap_phy_addr(struct file * lpPagemap, size_t virt_addr)
 	unsigned char c_buf[PAGEMAP_ENTRY];
 	int i;
 	unsigned char c;
-	printk_debug(KERN_INFO "page_size %zu\n", page_size);
-	printk_debug(KERN_INFO "Big endian? %d\n", is_bigendian());
+	//printk_debug(KERN_INFO "page_size %zu\n", page_size);
+	//printk_debug(KERN_INFO "Big endian? %d\n", is_bigendian());
 
 	//Shifting by virt-addr-offset number of bytes
 	//and multiplying by the size of an address (the size of an entry in pagemap file)
 	file_offset = virt_addr / page_size * PAGEMAP_ENTRY;
 
-	printk_debug(KERN_INFO "Vaddr: 0x%llx, Page_size: %zu, Entry_size: %d\n", virt_addr, page_size, PAGEMAP_ENTRY);
+	//printk_debug(KERN_INFO "Vaddr: 0x%llx, Page_size: %zu, Entry_size: %d\n", virt_addr, page_size, PAGEMAP_ENTRY);
 
-	printk_debug(KERN_INFO "Reading at 0x%llx\n", file_offset);
+	//printk_debug(KERN_INFO "Reading at 0x%llx\n", file_offset);
 
 	pold_fs = get_fs();
 	set_fs(KERNEL_DS);
 	if (lpPagemap->f_op->llseek(lpPagemap, file_offset, SEEK_SET) == -1) {
-		printk_debug(KERN_INFO "Failed to do llseek!");
+		//printk_debug(KERN_INFO "Failed to do llseek!");
 		set_fs(pold_fs);
 		return 0;
 	}
@@ -101,7 +101,7 @@ MY_STATIC size_t get_pagemap_phy_addr(struct file * lpPagemap, size_t virt_addr)
 
 
 	if (lpPagemap->f_op->read(lpPagemap, c_buf, PAGEMAP_ENTRY, &lpPagemap->f_pos) != PAGEMAP_ENTRY) {
-		printk_debug(KERN_INFO "Failed to do read!");
+		//printk_debug(KERN_INFO "Failed to do read!");
 		set_fs(pold_fs);
 		return 0;
 	}
@@ -117,22 +117,22 @@ MY_STATIC size_t get_pagemap_phy_addr(struct file * lpPagemap, size_t virt_addr)
 
 
 	for (i = 0; i < PAGEMAP_ENTRY; i++) {
-		printk_debug(KERN_INFO "[%d]0x%x ", i, c_buf[i]);
+		//printk_debug(KERN_INFO "[%d]0x%x ", i, c_buf[i]);
 
 		read_val = (read_val << 8) + c_buf[i];
 	}
-	printk_debug(KERN_INFO "\n");
-	printk_debug(KERN_INFO "Result: 0x%llx\n", read_val);
+	//printk_debug(KERN_INFO "\n");
+	//printk_debug(KERN_INFO "Result: 0x%llx\n", read_val);
 
 	if (GET_BIT(read_val, 63)) {
 		uint64_t pfn = GET_PFN(read_val);
-		printk_debug(KERN_INFO "PFN: 0x%llx (0x%llx)\n", pfn, pfn * page_size + virt_addr % page_size);
+		//printk_debug(KERN_INFO "PFN: 0x%llx (0x%llx)\n", pfn, pfn * page_size + virt_addr % page_size);
 		return pfn * page_size + virt_addr % page_size;
 	} else {
-		printk_debug(KERN_INFO "Page not present\n");
+		//printk_debug(KERN_INFO "Page not present\n");
 	}
 	if (GET_BIT(read_val, 62)) {
-		printk_debug(KERN_INFO "Page swapped\n");
+		//printk_debug(KERN_INFO "Page swapped\n");
 	}
 	return 0;
 }
@@ -169,64 +169,64 @@ MY_STATIC inline size_t get_task_proc_phy_addr(struct task_struct* task, size_t 
 
 	pgd = x_pgd_offset(mm, virt_addr);
 	if (pgd == NULL) {
-		printk_debug("pgd is null\n");
+		//printk_debug("pgd is null\n");
 		goto out;
 	}
-	printk_debug("pgd_val = 0x%lx pgd addr:0x%lx\n", (unsigned long int)pgd_val(*pgd), (unsigned long int)pgd_val(pgd));
-	printk_debug("init_mm pgd val:0x%lx,pgd addr:0x%lx\n", (unsigned long)pgd_val(*(mm->pgd)), pgd_val((mm->pgd)));
-	printk_debug("pgd_index = %d\n", pgd_index(virt_addr));
+	////printk_debug("pgd_val = 0x%lx pgd addr:0x%lx\n", (unsigned long int)pgd_val(*pgd), (unsigned long int)pgd_val(pgd));
+	////printk_debug("init_mm pgd val:0x%lx,pgd addr:0x%lx\n", (unsigned long)pgd_val(*(mm->pgd)), pgd_val((mm->pgd)));
+	////printk_debug("pgd_index = %d\n", pgd_index(virt_addr));
 	if (pgd_none(*pgd)) {
-		printk_debug("not mapped in pgd\n");
+		//printk_debug("not mapped in pgd\n");
 		goto out;
 	}
-	printk_debug("pgd_offset ok\n");
+	//printk_debug("pgd_offset ok\n");
 
 	/*
 	 * (p4ds are folded into pgds so this doesn't get actually called,
 	 * but the define is needed for a generic inline function.)
 	 */
 	p4d = p4d_offset(pgd, virt_addr);
-	//printk_debug("p4d_val = 0x%lx, p4d_index = %lu\n", p4d_val(*p4d), p4d_index(virt_addr));
-	printk_debug("p4d_val = 0x%lx\n", p4d_val(*p4d));
+	////printk_debug("p4d_val = 0x%lx, p4d_index = %lu\n", p4d_val(*p4d), p4d_index(virt_addr));
+	//printk_debug("p4d_val = 0x%lx\n", p4d_val(*p4d));
 	if (p4d_none(*p4d))
 	{
-		printk_debug("not mapped in p4d\n");
+		//printk_debug("not mapped in p4d\n");
 		goto out;
 	}
 
 	pud = pud_offset(p4d, virt_addr);
-	printk_debug("pud_val = 0x%llx \n", pud_val(*pud));
+	//printk_debug("pud_val = 0x%llx \n", pud_val(*pud));
 	if (pud_none(*pud)) {
-		printk_debug("not mapped in pud\n");
+		//printk_debug("not mapped in pud\n");
 		goto out;
 	}
-	printk_debug("pud_offset ok\n");
+	//printk_debug("pud_offset ok\n");
 
 	pmd = pmd_offset(pud, virt_addr);
-	printk_debug("pmd_val = 0x%llx\n", pmd_val(*pmd));
-	//printk_debug("pmd_index = %d\n", pmd_index(virt_addr));
+	//printk_debug("pmd_val = 0x%llx\n", pmd_val(*pmd));
+	////printk_debug("pmd_index = %d\n", pmd_index(virt_addr));
 	if (pmd_none(*pmd)) {
-		printk_debug("not mapped in pmd\n");
+		//printk_debug("not mapped in pmd\n");
 		goto out;
 	}
-	printk_debug("pmd_offset ok\n");
+	//printk_debug("pmd_offset ok\n");
 
 	pte = pte_offset_kernel(pmd, virt_addr);
-	printk_debug("pte_val = 0x%llx\n", pte_val(*pte));
-	//printk_debug("pte_index = %d\n", pte_index(virt_addr));
+	//printk_debug("pte_val = 0x%llx\n", pte_val(*pte));
+	////printk_debug("pte_index = %d\n", pte_index(virt_addr));
 	if (pte_none(*pte)) {
-		printk_debug("not mapped in pte\n");
+		//printk_debug("not mapped in pte\n");
 		goto out;
 	}
-	printk_debug("pte_offset_kernel ok\n");
+	//printk_debug("pte_offset_kernel ok\n");
 
 	page_addr = page_to_phys(pte_page(*pte));
 
 	page_offset = virt_addr & ~PAGE_MASK;
 	paddr = page_addr | page_offset;
 
-	printk_debug("page_addr = %llx, page_offset = %llx\n", page_addr, page_offset);
-	printk_debug("vaddr = %llx, paddr = %llx\n", virt_addr, paddr);
+	//printk_debug("page_addr = %llx, page_offset = %llx\n", page_addr, page_offset);
+	//printk_debug("vaddr = %llx, paddr = %llx\n", virt_addr, paddr);
 
 	*(size_t*)out_pte = (size_t)pte;
 
@@ -323,7 +323,7 @@ MY_STATIC inline size_t read_ram_physical_addr(size_t phy_addr, char* lpBuf, boo
 	void *bounce;
 	size_t realRead = 0;
 	if (!check_phys_addr_valid_range(phy_addr, read_size)) {
-		printk_debug(KERN_INFO "Error in check_phys_addr_valid_range:%p,size:%zu\n", phy_addr, read_size);
+		//printk_debug(KERN_INFO "Error in check_phys_addr_valid_range:%p,size:%zu\n", phy_addr, read_size);
 		return 0;
 	}
 	bounce = kmalloc(PAGE_SIZE, GFP_KERNEL);
@@ -344,7 +344,7 @@ MY_STATIC inline size_t read_ram_physical_addr(size_t phy_addr, char* lpBuf, boo
 		int probe;
 
 		if (!ptr) {
-			printk_debug(KERN_INFO "Error in x_xlate_dev_mem_ptr:0x%llx\n", phy_addr);
+			//printk_debug(KERN_INFO "Error in x_xlate_dev_mem_ptr:0x%llx\n", phy_addr);
 			break;
 		}
 		probe = x_probe_kernel_read(bounce, ptr, sz);
@@ -357,7 +357,7 @@ MY_STATIC inline size_t read_ram_physical_addr(size_t phy_addr, char* lpBuf, boo
 		} else {
 			unsigned long remaining = x_copy_to_user(lpBuf, bounce, sz);
 			if (remaining) {
-				printk_debug(KERN_INFO "Error in x_copy_to_user\n");
+				//printk_debug(KERN_INFO "Error in x_copy_to_user\n");
 				break;
 			}
 		}
@@ -373,7 +373,7 @@ MY_STATIC inline size_t read_ram_physical_addr(size_t phy_addr, char* lpBuf, boo
 MY_STATIC inline size_t write_ram_physical_addr(size_t phy_addr, char* lpBuf, bool is_kernel_buf, size_t write_size) {
 	size_t realWrite = 0;
 	if (!check_phys_addr_valid_range(phy_addr, write_size)) {
-		printk_debug(KERN_INFO "Error in check_phys_addr_valid_range:0x%llx,size:%zu\n", phy_addr, write_size);
+		//printk_debug(KERN_INFO "Error in check_phys_addr_valid_range:0x%llx,size:%zu\n", phy_addr, write_size);
 		return 0;
 	}
 
@@ -389,7 +389,7 @@ MY_STATIC inline size_t write_ram_physical_addr(size_t phy_addr, char* lpBuf, bo
 
 		char *ptr = xlate_dev_mem_ptr(phy_addr);
 		if (!ptr) {
-			printk_debug(KERN_INFO "Error in xlate_dev_mem_ptr:0x%llx\n", phy_addr);
+			//printk_debug(KERN_INFO "Error in xlate_dev_mem_ptr:0x%llx\n", phy_addr);
 			break;
 		}
 		if (is_kernel_buf) {
@@ -399,7 +399,7 @@ MY_STATIC inline size_t write_ram_physical_addr(size_t phy_addr, char* lpBuf, bo
 			if (copied) {
 				unxlate_dev_mem_ptr(phy_addr, ptr);
 				realWrite += sz - copied;
-				printk_debug(KERN_INFO "Error in x_copy_from_user\n");
+				//printk_debug(KERN_INFO "Error in x_copy_from_user\n");
 				break;
 			}
 		}
