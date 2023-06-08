@@ -18,7 +18,7 @@
 #define CONFIG_USE_PAGE_TABLE_CALC_PHY_ADDR
 
 //启用读取pagemap文件来计算物理内存的地址
-#define CONFIG_USE_PAGEMAP_FILE_CALC_PHY_ADDR
+//#define CONFIG_USE_PAGEMAP_FILE_CALC_PHY_ADDR
 
 //打印内核调试信息
 //#define CONFIG_DEBUG_PRINTK
