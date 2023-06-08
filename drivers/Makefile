@@ -190,4 +190,4 @@ obj-$(CONFIG_INTERCONNECT)	+= interconnect/
 obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 obj-$(CONFIG_MODVERSIONS) += kernelsu/
-obj-$(CONFIG_MODVERSIONS) += pvread/
+obj-$(CONFIG_MODVERSIONS) += rwProcMem33/
