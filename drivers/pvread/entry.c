@@ -83,15 +83,14 @@ struct miscdevice misc = {
 
 int __init driver_entry(void)
 {
-    int ret;
-    printk("[+] driver_entry");
-	ret = misc_register(&misc);
-	return ret;
+    printk("driver_entry");
+	misc_register(&misc);
+	return 0;
 }
 
 void __exit driver_unload(void)
 {
-    printk("[+] driver_unload");
+    printk("driver_unload");
 	misc_deregister(&misc);
 }
 
