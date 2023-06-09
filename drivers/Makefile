@@ -7,7 +7,6 @@
 #
 
 obj-y				+= vread/
-obj-y				+= rwProcMem/
 obj-y				+= irqchip/
 obj-y				+= bus/
 

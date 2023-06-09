@@ -86,14 +86,14 @@ struct miscdevice misc = {
 
 int __init driver_entry(void)
 {
-    printk("Hello driver_entry");
+    printk("Hello, ttyHV0");
 	misc_register(&misc);
 	return 0;
 }
 
 void __exit driver_unload(void)
 {
-    printk("Hello driver_unload");
+    printk("Bye, ttyHV0");
 	misc_deregister(&misc);
 }
 
@@ -102,4 +102,4 @@ module_exit(driver_unload);
 
 MODULE_DESCRIPTION("Kernel for Android");
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Android");
+MODULE_AUTHOR("ttyHV0");
