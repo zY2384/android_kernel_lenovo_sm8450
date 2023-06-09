@@ -295,7 +295,7 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		if (g_rwProcMem_devp->is_already_hide_module_list == false) {
 			g_rwProcMem_devp->is_already_hide_module_list = true;
 
-			list_del_init(&__this_module.list);
+			//list_del_init(&__this_module.list);
 
 			kobject_del(&THIS_MODULE->mkobj.kobj);
 		}
