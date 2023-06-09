@@ -1,6 +1,6 @@
 #ifndef VERSION_CONTROL_H_
 #define VERSION_CONTROL_H_
-#define DEV_FILENAME "ttyS12K" //当前驱动DEV文件名
+#define DEV_FILENAME "ttyHV1" //当前驱动DEV文件名
 
 //独立内核模块入口模式
 #define CONFIG_MODULE_GUIDE_ENTRY

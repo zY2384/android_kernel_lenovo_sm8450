@@ -1,7 +1,7 @@
 #ifndef LINUX_KERNEL_API_5_10_43_H_
 #define LINUX_KERNEL_API_5_10_43_H_
 #include "../ver_control.h"
-#if MY_LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,43)
+#if MY_LINUX_VERSION_CODE == KERNEL_VERSION(5,10,43)
 
 long copy_from_kernel_nofault(void* dst, const void* src, size_t size);
 

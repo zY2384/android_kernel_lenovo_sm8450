@@ -711,7 +711,7 @@ unsigned char * __check_fail_(unsigned char *result)
 }
 #endif
 
-unsigned long __stack_chk_guard;
+//unsigned long __stack_chk_guard; 不晓得代码都结束了为啥还要定义这个变量
 
 #ifdef CONFIG_MODULE_GUIDE_ENTRY
 module_init(rwProcMem_dev_init);
