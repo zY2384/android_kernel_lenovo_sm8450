@@ -1,7 +1,7 @@
-﻿#include "sys.h"
+#include "sys.h"
 
 MY_STATIC int rwProcMem_open(struct inode *inode, struct file *filp) {
-	printk_debug(KERN_INFO "rwProcMem_open!!!!\n");
+	//printk_debug(KERN_INFO "rwProcMem_open!!!!\n");
 
 	g_rwProcMem_devp->cur_dev_open_count++;
 	if (g_rwProcMem_devp->cur_dev_open_count >= g_rwProcMem_devp->max_dev_open_count) {
@@ -23,7 +23,7 @@ MY_STATIC int rwProcMem_open(struct inode *inode, struct file *filp) {
 }
 
 MY_STATIC int rwProcMem_release(struct inode *inode, struct file *filp) {
-	printk_debug(KERN_INFO "rwProcMem_release!!!!\n");
+	//printk_debug(KERN_INFO "rwProcMem_release!!!!\n");
 	if (g_rwProcMem_devp->cur_dev_open_count > 0) {
 		g_rwProcMem_devp->cur_dev_open_count--;
 	}
@@ -56,8 +56,8 @@ MY_STATIC ssize_t rwProcMem_read(struct file* filp, char __user* buf, size_t siz
 
 		size_t read_size = 0;
 
-		printk_debug(KERN_INFO "READ proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
-		printk_debug(KERN_INFO "READ proc_virt_addr:0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
+		//printk_debug(KERN_INFO "READ proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+		//printk_debug(KERN_INFO "READ proc_virt_addr:0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
 
 
 		if (is_force_read == false && !check_proc_map_can_read(proc_pid_struct, proc_virt_addr, size)) {
@@ -78,13 +78,13 @@ MY_STATIC ssize_t rwProcMem_read(struct file* filp, char __user* buf, size_t siz
 
 #ifdef CONFIG_USE_PAGEMAP_FILE_CALC_PHY_ADDR
 			struct file * pFile = open_pagemap(get_proc_pid(proc_pid_struct));
-			printk_debug(KERN_INFO "open_pagemap %d\n", pFile);
+			//printk_debug(KERN_INFO "open_pagemap %d\n", pFile);
 			if (!pFile) { break; }
 
 			phy_addr = get_pagemap_phy_addr(pFile, proc_virt_addr);
 
 			close_pagemap(pFile);
-			printk_debug(KERN_INFO "pagemap phy_addr:0x%zx\n", phy_addr);
+			//printk_debug(KERN_INFO "pagemap phy_addr:0x%zx\n", phy_addr);
 #endif
 
 #ifdef CONFIG_USE_PAGE_TABLE_CALC_PHY_ADDR
@@ -92,7 +92,7 @@ MY_STATIC ssize_t rwProcMem_read(struct file* filp, char __user* buf, size_t siz
 
 			bool old_pte_can_read;
 			phy_addr = get_proc_phy_addr(proc_pid_struct, proc_virt_addr + read_size, (pte_t*)&pte);
-			printk_debug(KERN_INFO "calc phy_addr:0x%zx\n", phy_addr);
+			//printk_debug(KERN_INFO "calc phy_addr:0x%zx\n", phy_addr);
 
 #endif
 			if (phy_addr == 0) {
@@ -111,7 +111,7 @@ MY_STATIC ssize_t rwProcMem_read(struct file* filp, char __user* buf, size_t siz
 #endif
 
 			pfn_sz = size_inside_page(phy_addr, ((size - read_size) > PAGE_SIZE) ? PAGE_SIZE : (size - read_size));
-			printk_debug(KERN_INFO "pfn_sz:%zu\n", pfn_sz);
+			//printk_debug(KERN_INFO "pfn_sz:%zu\n", pfn_sz);
 
 
 			lpOutBuf = (char*)(buf + read_size);
@@ -130,7 +130,7 @@ MY_STATIC ssize_t rwProcMem_read(struct file* filp, char __user* buf, size_t siz
 
 		return read_size;
 	} else {
-		printk_debug(KERN_INFO "READ FAILED ret:%lu, user:%p, size:%zu\n", read, buf, size);
+		//printk_debug(KERN_INFO "READ FAILED ret:%lu, user:%p, size:%zu\n", read, buf, size);
 
 	}
 	return -EFAULT;
@@ -145,8 +145,8 @@ MY_STATIC ssize_t rwProcMem_write(struct file* filp, const char __user* buf, siz
 		bool is_force_write = data[16] == '\x01' ? true : false;
 
 		size_t write_size = 0;
-		printk_debug(KERN_INFO "WRITE proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
-		printk_debug(KERN_INFO "WRITE proc_virt_addr:0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
+		//printk_debug(KERN_INFO "WRITE proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+		//printk_debug(KERN_INFO "WRITE proc_virt_addr:0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
 
 		if (is_force_write == false && !check_proc_map_can_write(proc_pid_struct, proc_virt_addr, size)) {
 			return -EFAULT;
@@ -159,7 +159,7 @@ MY_STATIC ssize_t rwProcMem_write(struct file* filp, const char __user* buf, siz
 
 #ifdef CONFIG_USE_PAGEMAP_FILE_CALC_PHY_ADDR
 			struct file * pFile = open_pagemap(get_proc_pid(proc_pid_struct));
-			printk_debug(KERN_INFO "open_pagemap %d\n", pFile);
+			//printk_debug(KERN_INFO "open_pagemap %d\n", pFile);
 			if (!pFile) { break; }
 
 			phy_addr = get_pagemap_phy_addr(pFile, proc_virt_addr);
@@ -173,7 +173,7 @@ MY_STATIC ssize_t rwProcMem_write(struct file* filp, const char __user* buf, siz
 			phy_addr = get_proc_phy_addr(proc_pid_struct, proc_virt_addr + write_size, (pte_t*)&pte);
 #endif
 
-			printk_debug(KERN_INFO "phy_addr:0x%zx\n", phy_addr);
+			//printk_debug(KERN_INFO "phy_addr:0x%zx\n", phy_addr);
 			if (phy_addr == 0) {
 				break;
 			}
@@ -190,7 +190,7 @@ MY_STATIC ssize_t rwProcMem_write(struct file* filp, const char __user* buf, siz
 #endif
 
 			pfn_sz = size_inside_page(phy_addr, ((size - write_size) > PAGE_SIZE) ? PAGE_SIZE : (size - write_size));
-			printk_debug(KERN_INFO "pfn_sz:%zu\n", pfn_sz);
+			//printk_debug(KERN_INFO "pfn_sz:%zu\n", pfn_sz);
 
 
 
@@ -207,7 +207,7 @@ MY_STATIC ssize_t rwProcMem_write(struct file* filp, const char __user* buf, siz
 		}
 		return write_size;
 	} else {
-		printk_debug(KERN_INFO "WRITE FAILED ret:%lu, user:%p, size:%zu\n", write, buf, size);
+		//printk_debug(KERN_INFO "WRITE FAILED ret:%lu, user:%p, size:%zu\n", write, buf, size);
 	}
 	return -EFAULT;
 }
@@ -229,7 +229,7 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 
 		size = copy_from_user((void*)p_init_device_info, (void*)arg, sizeof(struct init_device_info));
 		if (size == 0) {
-			printk_debug(KERN_INFO "IOCTL_INIT_DEVICE_INFO\n");
+			//printk_debug(KERN_INFO "IOCTL_INIT_DEVICE_INFO\n");
 			init_mmap_lock_offset(p_init_device_info->proc_self_maps_cnt);
 			init_map_count_offset(p_init_device_info->proc_self_maps_cnt);
 			init_proc_cmdline_offset(p_init_device_info->proc_self_cmdline, get_task_proc_cmdline_addr);
@@ -247,9 +247,9 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		if (x_copy_from_user((void*)buf, (void*)arg, 8) == 0) {
 			size_t new_max_dev_open_count = *(size_t*)buf;
 
-			printk_debug(KERN_INFO "IOCTL_SET_MAX_DEV_FILE_OPEN\n");
+			//printk_debug(KERN_INFO "IOCTL_SET_MAX_DEV_FILE_OPEN\n");
 
-			printk_debug(KERN_INFO "new_max_dev_open_count:%zu,size:%ld\n", new_max_dev_open_count, sizeof(new_max_dev_open_count));
+			//printk_debug(KERN_INFO "new_max_dev_open_count:%zu,size:%ld\n", new_max_dev_open_count, sizeof(new_max_dev_open_count));
 
 			g_rwProcMem_devp->max_dev_open_count = new_max_dev_open_count;
 
@@ -290,7 +290,7 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 	}
 	case IOCTL_HIDE_KERNEL_MODULE:
 	{
-		printk_debug(KERN_INFO "IOCTL_HIDE_KERNEL_MODULE\n");
+		//printk_debug(KERN_INFO "IOCTL_HIDE_KERNEL_MODULE\n");
 
 		if (g_rwProcMem_devp->is_already_hide_module_list == false) {
 			g_rwProcMem_devp->is_already_hide_module_list = true;
@@ -311,12 +311,12 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 			uint64_t pid = *(uint64_t*)&buf;
 			struct pid * proc_pid_struct = NULL;
 
-			printk_debug(KERN_INFO "IOCTL_OPEN_PROCESS\n");
+			//printk_debug(KERN_INFO "IOCTL_OPEN_PROCESS\n");
 
-			printk_debug(KERN_INFO "pid:%llu,size:%ld\n", pid, sizeof(pid));
+			//printk_debug(KERN_INFO "pid:%llu,size:%ld\n", pid, sizeof(pid));
 
 			proc_pid_struct = get_proc_pid_struct(pid);
-			printk_debug(KERN_INFO "proc_pid_struct *:0x%p\n", (void*)proc_pid_struct);
+			//printk_debug(KERN_INFO "proc_pid_struct *:0x%p\n", (void*)proc_pid_struct);
 
 			if (!proc_pid_struct) {
 				return -EINVAL;
@@ -343,9 +343,9 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		char buf[8] = { 0 };
 		if (x_copy_from_user((void*)buf, (void*)arg, 8) == 0) {
 			struct pid * proc_pid_struct = (struct pid *)*(size_t*)buf;
-			printk_debug(KERN_INFO "IOCTL_CLOSE_HANDLE\n");
+			//printk_debug(KERN_INFO "IOCTL_CLOSE_HANDLE\n");
 
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 
 			release_proc_pid_struct(proc_pid_struct);
 
@@ -361,8 +361,8 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		if (x_copy_from_user((void*)buf, (void*)arg, 8) == 0) {
 			struct pid * proc_pid_struct = (struct pid *)*(size_t*)buf;
 
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_MAPS_COUNT\n");
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_MAPS_COUNT\n");
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 
 			return get_proc_map_count(proc_pid_struct);
 		}
@@ -379,10 +379,10 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 			int have_pass = 0;
 			int count = 0;
 			unsigned char ch;
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_MAPS_LIST\n");
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
-			printk_debug(KERN_INFO "name_len:%zu,size:%ld\n", name_len, sizeof(name_len));
-			printk_debug(KERN_INFO "buf_size:%zu,size:%ld\n", buf_size, sizeof(buf_size));
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_MAPS_LIST\n");
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "name_len:%zu,size:%ld\n", name_len, sizeof(name_len));
+			//printk_debug(KERN_INFO "buf_size:%zu,size:%ld\n", buf_size, sizeof(buf_size));
 
 			count = get_proc_maps_list(proc_pid_struct, name_len, (void*)((size_t)arg + (size_t)1), buf_size - 1, false, &have_pass);
 			ch = have_pass == 1 ? '\x01' : '\x00';
@@ -411,13 +411,13 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 #endif
 			size_t ret = 0;
 
-			printk_debug(KERN_INFO "IOCTL_CHECK_PROC_ADDR_PHY\n");
-			printk_debug(KERN_INFO "proc_pid_struct *:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
-			printk_debug(KERN_INFO "proc_virt_addr :0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
+			//printk_debug(KERN_INFO "IOCTL_CHECK_PROC_ADDR_PHY\n");
+			//printk_debug(KERN_INFO "proc_pid_struct *:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "proc_virt_addr :0x%zx,size:%ld\n", proc_virt_addr, sizeof(proc_virt_addr));
 
 #ifdef CONFIG_USE_PAGEMAP_FILE_CALC_PHY_ADDR
 			pFile = open_pagemap(get_proc_pid(proc_pid_struct));
-			printk_debug(KERN_INFO "open_pagemap %p\n", pFile);
+			//printk_debug(KERN_INFO "open_pagemap %p\n", pFile);
 			if (!pFile) { break; }
 			ret = get_pagemap_phy_addr(pFile, proc_virt_addr);
 			close_pagemap(pFile);
@@ -445,11 +445,11 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 			uint64_t buf_size = *(uint64_t*)&buf;
 			bool is_speed_mode = buf[8] == '\x01' ? true : false;
 			ssize_t proc_count = 0;
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_PID_LIST\n");
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_PID_LIST\n");
 
-			printk_debug(KERN_INFO "buf_size:%llu,size:%ld\n", buf_size, sizeof(buf_size));
+			//printk_debug(KERN_INFO "buf_size:%llu,size:%ld\n", buf_size, sizeof(buf_size));
 
-			printk_debug(KERN_INFO "is_speed_mode:%d,size:%ld\n", is_speed_mode, sizeof(is_speed_mode));
+			//printk_debug(KERN_INFO "is_speed_mode:%d,size:%ld\n", is_speed_mode, sizeof(is_speed_mode));
 
 			proc_count = get_proc_pid_list(!is_speed_mode, (char*)arg, buf_size, false);
 			return proc_count;
@@ -473,9 +473,9 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 			size_t nOutEGID = 0;
 			size_t nOutFSGID = 0;
 
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_GROUP\n");
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_GROUP\n");
 
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 
 			memset(buf, 0, 8);
 
@@ -513,8 +513,8 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		char buf[8] = { 0 };
 		if (x_copy_from_user((void*)buf, (void*)arg, 8) == 0) {
 			struct pid * proc_pid_struct = (struct pid *)*(size_t*)buf;
-			printk_debug(KERN_INFO "IOCTL_SET_PROCESS_ROOT\n");
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "IOCTL_SET_PROCESS_ROOT\n");
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 			return set_proc_root(proc_pid_struct);
 		}
 		return -EFAULT;
@@ -526,8 +526,8 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 		if (x_copy_from_user((void*)buf, (void*)arg, 8) == 0) {
 			struct pid * proc_pid_struct = (struct pid *)*(size_t*)buf;
 			size_t rss;
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_RSS\n");
-			printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_RSS\n");
+			//printk_debug(KERN_INFO "proc_pid_struct*:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 
 			memset(&buf, 0, 8);
 			rss = read_proc_rss_size(proc_pid_struct);
@@ -551,9 +551,9 @@ MY_STATIC inline long DispatchCommand(unsigned int cmd, unsigned long arg) {
 			size_t arg_start = 0, arg_end = 0;
 			int res;
 
-			printk_debug(KERN_INFO "IOCTL_GET_PROCESS_CMDLINE_ADDR\n");
+			//printk_debug(KERN_INFO "IOCTL_GET_PROCESS_CMDLINE_ADDR\n");
 
-			printk_debug(KERN_INFO "proc_pid_struct *:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
+			//printk_debug(KERN_INFO "proc_pid_struct *:0x%p,size:%ld\n", (void*)proc_pid_struct, sizeof(proc_pid_struct));
 
 			memset(&buf, 0, 16);
 
@@ -593,12 +593,12 @@ MY_STATIC long rwProcMem_ioctl(
 }
 MY_STATIC loff_t rwProcMem_llseek(struct file* filp, loff_t offset, int orig) {
 	unsigned int cmd = 0;
-	printk_debug("rwProcMem_llseek offset:%zd\n", (ssize_t)offset);
+	//printk_debug("rwProcMem_llseek offset:%zd\n", (ssize_t)offset);
 
 	if (!!x_copy_from_user((void*)&cmd, (void*)offset, sizeof(unsigned int))) {
 		return -EINVAL;
 	}
-	printk_debug("rwProcMem_llseek cmd:%u\n", cmd);
+	//printk_debug("rwProcMem_llseek cmd:%u\n", cmd);
 	return DispatchCommand(cmd, offset + sizeof(unsigned int));
 }
 
@@ -699,14 +699,14 @@ void __exit rwProcMem_dev_exit(void) {
 //Hook:__cfi_check_fn
 unsigned char* __check_(unsigned char* result, void *ptr, void *diag)
 {
-	printk_debug(KERN_EMERG "my__cfi_check_fn!!!\n");
+	//printk_debug(KERN_EMERG "my__cfi_check_fn!!!\n");
 	return result;
 }
 
 //Hook:__cfi_check_fail
 unsigned char * __check_fail_(unsigned char *result)
 {
-	printk_debug(KERN_EMERG "my__cfi_check_fail!!!\n");
+	//printk_debug(KERN_EMERG "my__cfi_check_fail!!!\n");
 	return result;
 }
 #endif

@@ -1,4 +1,4 @@
-﻿#ifndef PROC_MAPS_H_
+#ifndef PROC_MAPS_H_
 #define PROC_MAPS_H_
 
 //声明
@@ -60,7 +60,7 @@ MY_STATIC inline size_t get_proc_map_count(struct pid* proc_pid_struct) {
 
 	//精确偏移
 	accurate_offset = (ssize_t)((size_t)&mm->map_count - (size_t)mm + g_map_count_offset_proc_maps);
-	printk_debug(KERN_INFO "mm->map_count accurate_offset:%zd\n", accurate_offset);
+	//printk_debug(KERN_INFO "mm->map_count accurate_offset:%zd\n", accurate_offset);
 	if (accurate_offset >= sizeof(struct mm_struct) - sizeof(ssize_t)) {
 		return 0;
 	}
@@ -86,17 +86,17 @@ MY_STATIC inline int check_proc_map_can_read(struct pid* proc_pid_struct, size_t
 	if (!mm) { return res; }
 
 
-	//printk_debug(KERN_EMERG "mm:%p\n", &mm);
-	//printk_debug(KERN_EMERG "mm->map_count:%p:%lu\n", &mm->map_count, mm->map_count);
-	//printk_debug(KERN_EMERG "mm->mmap_lock:%p\n", &mm->mmap_lock);
-	//printk_debug(KERN_EMERG "mm->hiwater_vm:%p:%lu\n", &mm->hiwater_vm, mm->hiwater_vm);
-	//printk_debug(KERN_EMERG "mm->total_vm:%p:%lu\n", &mm->total_vm, mm->total_vm);
-	//printk_debug(KERN_EMERG "mm->locked_vm:%p:%lu\n", &mm->locked_vm, mm->locked_vm);
-	//printk_debug(KERN_EMERG "mm->pinned_vm:%p:%lu\n", &mm->pinned_vm, mm->pinned_vm);
+	////printk_debug(KERN_EMERG "mm:%p\n", &mm);
+	////printk_debug(KERN_EMERG "mm->map_count:%p:%lu\n", &mm->map_count, mm->map_count);
+	////printk_debug(KERN_EMERG "mm->mmap_lock:%p\n", &mm->mmap_lock);
+	////printk_debug(KERN_EMERG "mm->hiwater_vm:%p:%lu\n", &mm->hiwater_vm, mm->hiwater_vm);
+	////printk_debug(KERN_EMERG "mm->total_vm:%p:%lu\n", &mm->total_vm, mm->total_vm);
+	////printk_debug(KERN_EMERG "mm->locked_vm:%p:%lu\n", &mm->locked_vm, mm->locked_vm);
+	////printk_debug(KERN_EMERG "mm->pinned_vm:%p:%lu\n", &mm->pinned_vm, mm->pinned_vm);
 
-	//printk_debug(KERN_EMERG "mm->task_size:%p:%lu,%lu\n", &mm->task_size, mm->task_size, TASK_SIZE);
-	//printk_debug(KERN_EMERG "mm->highest_vm_end:%p:%lu\n", &mm->highest_vm_end, mm->highest_vm_end);
-	//printk_debug(KERN_EMERG "mm->pgd:%p:%p\n", &mm->pgd, mm->pgd);
+	////printk_debug(KERN_EMERG "mm->task_size:%p:%lu,%lu\n", &mm->task_size, mm->task_size, TASK_SIZE);
+	////printk_debug(KERN_EMERG "mm->highest_vm_end:%p:%lu\n", &mm->highest_vm_end, mm->highest_vm_end);
+	////printk_debug(KERN_EMERG "mm->pgd:%p:%p\n", &mm->pgd, mm->pgd);
 
 
 	if (down_read_mmap_lock(mm) != 0) {

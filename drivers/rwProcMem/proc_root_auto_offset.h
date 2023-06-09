@@ -1,4 +1,4 @@
-﻿#ifndef PROC_ROOT_AUTO_OFFSET_H_
+#ifndef PROC_ROOT_AUTO_OFFSET_H_
 #define PROC_ROOT_AUTO_OFFSET_H_
 #include <linux/ctype.h>
 #include "ver_control.h"
@@ -32,7 +32,7 @@ MY_STATIC inline int init_proc_root_offset(const char* proc_self_status_content)
 	memset(lp_tmp_name, 0, len + 1);
 	memcpy(lp_tmp_line, proc_self_status_content, len);
 
-	printk_debug(KERN_INFO "lp_tmp_line:%s\n", lp_tmp_line);
+	//printk_debug(KERN_INFO "lp_tmp_line:%s\n", lp_tmp_line);
 
 
 
@@ -40,13 +40,13 @@ MY_STATIC inline int init_proc_root_offset(const char* proc_self_status_content)
 	sscanf(lp_tmp_line, "Name: %s", lp_tmp_name);
 	strlcpy(comm, lp_tmp_name, sizeof(comm));
 
-	printk_debug(KERN_EMERG "len:%d, comm:%s\n", strlen(comm), comm);
+	//printk_debug(KERN_EMERG "len:%d, comm:%s\n", strlen(comm), comm);
 
 
 	//
 	//for (i = 0; i < TASK_COMM_LEN; i++)
 	//{
-	//	printk_debug(KERN_EMERG "comm %x\n", comm[i]);
+	//	//printk_debug(KERN_EMERG "comm %x\n", comm[i]);
 	//}
 
 
@@ -62,12 +62,12 @@ MY_STATIC inline int init_proc_root_offset(const char* proc_self_status_content)
 		char* lpszComm = (char*)&current->real_cred;
 		lpszComm += g_real_cred_offset_proc_root;
 
-		printk_debug(KERN_EMERG " %x\n", *(unsigned char*)lpszComm);
+		//printk_debug(KERN_EMERG " %x\n", *(unsigned char*)lpszComm);
 
 		if (strcmp(lpszComm, comm) == 0) {
 			g_real_cred_offset_proc_root -= sizeof(void*) * 2;
 
-			printk_debug(KERN_EMERG "strcmp %zd\n", g_real_cred_offset_proc_root);
+			//printk_debug(KERN_EMERG "strcmp %zd\n", g_real_cred_offset_proc_root);
 
 			g_init_real_cred_offset_success = true;
 			break;
@@ -76,10 +76,10 @@ MY_STATIC inline int init_proc_root_offset(const char* proc_self_status_content)
 	}
 
 	if (!g_init_real_cred_offset_success) {
-		printk_debug(KERN_INFO "real_cred offset failed\n");
+		//printk_debug(KERN_INFO "real_cred offset failed\n");
 		return -ESPIPE;
 	}
-	printk_debug(KERN_INFO "g_real_cred_offset_proc_root:%zu\n", g_real_cred_offset_proc_root);
+	//printk_debug(KERN_INFO "g_real_cred_offset_proc_root:%zu\n", g_real_cred_offset_proc_root);
 	return 0;
 }
 #endif /* PROC_ROOT_AUTO_OFFSET_H_ */

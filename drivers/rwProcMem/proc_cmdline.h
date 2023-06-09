@@ -1,4 +1,4 @@
-﻿#ifndef PROC_CMDLINE_H_
+#ifndef PROC_CMDLINE_H_
 #define PROC_CMDLINE_H_
 //声明
 //////////////////////////////////////////////////////////////////////////
@@ -63,12 +63,12 @@ MY_STATIC inline int get_task_proc_cmdline_addr(struct task_struct *task, size_t
 			mmput(mm);
 			return -EFAULT;
 		}
-		printk_debug(KERN_INFO "accurate_offset:%zd\n", accurate_offset);
+		//printk_debug(KERN_INFO "accurate_offset:%zd\n", accurate_offset);
 
 		*arg_start = *(size_t*)((size_t)mm + (size_t)accurate_offset);
 		*arg_end = *(size_t*)((size_t)mm + (size_t)accurate_offset + sizeof(unsigned long));
 
-		printk_debug(KERN_INFO "arg_start addr:0x%p\n", (void*)*arg_start);
+		//printk_debug(KERN_INFO "arg_start addr:0x%p\n", (void*)*arg_start);
 
 		up_read_mmap_lock(mm);
 		mmput(mm);

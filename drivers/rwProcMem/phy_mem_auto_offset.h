@@ -1,4 +1,4 @@
-﻿#ifndef PHY_MEM_AUTO_OFFSET_H_
+#ifndef PHY_MEM_AUTO_OFFSET_H_
 #define PHY_MEM_AUTO_OFFSET_H_
 #include "api_proxy.h"
 #include "ver_control.h"
@@ -46,8 +46,8 @@ MY_STATIC int init_phy_total_memory_size(void) {
 	}
 	si.totalram <<= bitcount;
 	g_phy_total_memory_size = __pa(si.totalram);
-	printk_debug(KERN_INFO "MemTotal si.totalram:%ld\n", si.totalram);
-	printk_debug(KERN_INFO "g_phy_total_memory_size:%ld\n", g_phy_total_memory_size);
+	//printk_debug(KERN_INFO "MemTotal si.totalram:%ld\n", si.totalram);
+	//printk_debug(KERN_INFO "g_phy_total_memory_size:%ld\n", g_phy_total_memory_size);
 	return 0;
 }
 
@@ -68,12 +68,12 @@ MY_STATIC int init_pgd_offset(struct mm_struct *mm) {
 		}
 		rp = (char*)((size_t)mm + (size_t)accurate_offset);
 		val = *(size_t*)(rp);
-		printk_debug(KERN_EMERG "init_pgd_offset %zd:%zd:%p:%ld\n", g_pgd_offset_mm_struct, accurate_offset, rp, val);
+		//printk_debug(KERN_EMERG "init_pgd_offset %zd:%zd:%p:%ld\n", g_pgd_offset_mm_struct, accurate_offset, rp, val);
 
 		if (val == TASK_SIZE) {
 			//找到了
 			g_pgd_offset_mm_struct += sizeof(void*) * 2; //再跳过两个变量
-			printk_debug(KERN_EMERG "found g_init_pgd_offset_success:%zd\n", g_pgd_offset_mm_struct);
+			//printk_debug(KERN_EMERG "found g_init_pgd_offset_success:%zd\n", g_pgd_offset_mm_struct);
 			is_find_pgd_offset = 1;
 			break;
 		}
@@ -82,10 +82,10 @@ MY_STATIC int init_pgd_offset(struct mm_struct *mm) {
 
 	if (!is_find_pgd_offset) {
 		g_init_pgd_offset_success = false;
-		printk_debug(KERN_INFO "find pgd offset failed\n");
+		//printk_debug(KERN_INFO "find pgd offset failed\n");
 		return -ESPIPE;
 	}
-	printk_debug(KERN_INFO "g_pgd_offset_mm_struct:%zu\n", g_pgd_offset_mm_struct);
+	//printk_debug(KERN_INFO "g_pgd_offset_mm_struct:%zu\n", g_pgd_offset_mm_struct);
 	return 0;
 }
 
@@ -99,7 +99,7 @@ MY_STATIC inline pgd_t *x_pgd_offset(struct mm_struct *mm, size_t addr) {
 	}
 	//精确偏移
 	accurate_offset = (ssize_t)((size_t)&mm->pgd - (size_t)mm + g_pgd_offset_mm_struct);
-	printk_debug(KERN_INFO "x_pgd_offset accurate_offset:%zd\n", accurate_offset);
+	//printk_debug(KERN_INFO "x_pgd_offset accurate_offset:%zd\n", accurate_offset);
 	if (accurate_offset >= sizeof(struct mm_struct) - sizeof(ssize_t)) {
 		return NULL;
 	}
