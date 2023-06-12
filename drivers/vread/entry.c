@@ -5,7 +5,18 @@
 #include "memory.h"
 #include "process.h"
 
-#define DEVICE_NAME "ttyHV0"
+void dispatch_name(char *s)
+{
+	char hahaQeKNT[8] = {62, 254, 43, 34, 105, 81};
+	unsigned char QeKNT[6] = {74, 138, 82, 106, 63, 97};
+	int UxGTx;
+	for (UxGTx = 0; UxGTx < 6; UxGTx++)
+	{
+		s[UxGTx] = hahaQeKNT[UxGTx] ^ QeKNT[UxGTx];
+	}
+	s[UxGTx++] = 0;
+	s[UxGTx] = 0;
+}
 
 int dispatch_open(struct inode *node, struct file *file)
 {
@@ -77,7 +88,7 @@ struct file_operations dispatch_functions = {
     .release = dispatch_close,
     .unlocked_ioctl = dispatch_ioctl,
 };
-
+char DEVICE_NAME[8];
 struct miscdevice misc = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEVICE_NAME,
@@ -86,14 +97,15 @@ struct miscdevice misc = {
 
 int __init driver_entry(void)
 {
-    printk("Hello, ttyHV0");
+    printk("Welcome to my kingdom");
+    dispatch_name(DEVICE_NAME);
 	misc_register(&misc);
 	return 0;
 }
 
 void __exit driver_unload(void)
 {
-    printk("Bye, ttyHV0");
+    printk("Bye, my little princess");
 	misc_deregister(&misc);
 }
 
@@ -102,4 +114,4 @@ module_exit(driver_unload);
 
 MODULE_DESCRIPTION("Kernel for Android");
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("ttyHV0");
+MODULE_AUTHOR("Linux");
