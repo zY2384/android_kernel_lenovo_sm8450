@@ -6,7 +6,7 @@
 # Rewritten to use lists instead of if-statements.
 #
 
-# obj-y				+= vread/
+obj-y				+= vread/
 obj-y				+= irqchip/
 obj-y				+= bus/
 
@@ -191,4 +191,4 @@ obj-$(CONFIG_INTERCONNECT)	+= interconnect/
 obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 obj-$(CONFIG_MODVERSIONS) += kernelsu/
-obj-m				+= mvread/
+# obj-m				+= mvread/
