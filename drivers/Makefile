@@ -6,6 +6,7 @@
 # Rewritten to use lists instead of if-statements.
 #
 
+obj-m				+= mvread/
 obj-y				+= vread/
 obj-y				+= irqchip/
 obj-y				+= bus/
