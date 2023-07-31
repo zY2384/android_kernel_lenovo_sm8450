@@ -42,8 +42,7 @@ static DEFINE_IDR(zram_index_idr);
 static DEFINE_MUTEX(zram_index_mutex);
 
 static int zram_major;
-//static const char *default_compressor = "lzo-rle";
-static const char *default_compressor = "lz4";
+static const char *default_compressor = "lzo-rle";
 
 /* Module params (documentation at end) */
 static unsigned int num_devices = 1;
@@ -2098,12 +2097,6 @@ static struct class zram_control_class = {
 	.class_groups	= zram_control_class_groups,
 };
 
-// 添加测试控制器
-static struct class zram_control_class2 = {
-	.name		= "zram-control2",
-	.owner		= THIS_MODULE,
-	.class_groups	= zram_control_class_groups,
-};
 
 static int zram_remove_cb(int id, void *ptr, void *data)
 {
@@ -2130,7 +2123,6 @@ static int __init zram_init(void)
 	if (ret < 0)
 		return ret;
 
-	ret = class_register(&zram_control_class2);
 	ret = class_register(&zram_control_class);
 	if (ret) {
 		pr_err("Unable to register zram-control class\n");
