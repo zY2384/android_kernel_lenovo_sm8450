@@ -191,6 +191,6 @@ obj-$(CONFIG_COUNTER)		+= counter/
 obj-$(CONFIG_MOST)		+= most/
 
 # Added a custom module
-obj-y				+= mread/
+# obj-y				+= mread/
 obj-y				+= kernelsu/
 
