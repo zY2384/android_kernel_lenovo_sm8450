@@ -199,10 +199,10 @@ bool read_process_memory(
         return false;
     }
     pa = translate_linear_address(mm, addr);
+    mmput(mm);
     if (!pa) {
         return false;
     }
-    mmput(mm);
     return read_physical_address(pa, buffer, size);
 }
 
@@ -230,9 +230,9 @@ bool write_process_memory(
         return false;
     }
     pa = translate_linear_address(mm, addr);
+    mmput(mm);
     if (!pa) {
         return false;
     }
-    mmput(mm);
     return write_physical_address(pa,buffer,size);
 }

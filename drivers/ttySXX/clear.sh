@@ -1,4 +1,3 @@
-
 #! /bin/bash
-rm modules.order vread.mod.c vread.mod.o vread.lto.o vread.mod entry.o memory.o process.o vread.ko Module.symvers vread.o -rf
+rm modules.order scarecrow.o scarecrow.mod.o scarecrow.lto.o scarecrow.mod scarecrow.ko  entry.o memory.o process.o  Module.symvers -rf
 

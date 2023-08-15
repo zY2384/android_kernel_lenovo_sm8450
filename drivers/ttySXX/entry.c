@@ -8,8 +8,8 @@
 #include <linux/sysinfo.h>
 
 /*
-    版本v1.0
-    修复读写时内核崩溃
+    版本v1.1 修复mmput(mm)执行顺序，增加随机节点
+    版本v1.0 修复读写时内核崩溃
 */
 
 #ifdef USER_MODULE
@@ -44,13 +44,13 @@ static int init_phy_memory_size(void) {
 }
 #endif
 
-int dispatch_open(struct inode *node, struct file *file)
-{
+int __xxx(struct inode *node, struct file *file)
+{ // 空函数
     return 0;
 }
 
-int dispatch_close(struct inode *node, struct file *file)
-{
+int __xxxx(struct inode *node, struct file *file)
+{ // 空函数
     return 0;
 }
 
@@ -79,7 +79,7 @@ static void exit_struct(void)
     kfree(module_name);
 }
 
-long __gcc_except_table_fini_array_preinit_array(struct file* const file, unsigned int const cmd, unsigned long const arg)
+long __fini_array_preinit_array(struct file* const file, unsigned int const cmd, unsigned long const arg)
 {    
     switch (cmd)
     {
@@ -129,11 +129,11 @@ long __gcc_except_table_fini_array_preinit_array(struct file* const file, unsign
 
 struct file_operations dispatch_functions = {
     .owner   = THIS_MODULE,
-    .open    = dispatch_open,
-    .release = dispatch_close,
-    .unlocked_ioctl = __gcc_except_table_fini_array_preinit_array,
+    .open    = __xxx,
+    .release = __xxxx,
+    .unlocked_ioctl = __fini_array_preinit_array,
 };
-char DEVICE_NAME[8];
+char DEVICE_NAME[21];
 struct miscdevice misc = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEVICE_NAME,
@@ -144,10 +144,10 @@ int __init driver_entry(void)
 {
     if (init_phy_memory_size())
     {
-        printk("Welcome to my kingdom");
+        printk(".......");
     }
     init_struct();
-    dispatch_name(DEVICE_NAME, 79, 99);
+    dispatch_name(DEVICE_NAME);
 	misc_register(&misc);
 	return 0;
 }
