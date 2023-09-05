@@ -114,13 +114,13 @@ static inline bool read_physical_address(phys_addr_t pa, void* buffer, size_t si
 static inline bool write_physical_address(phys_addr_t pa, void* buffer, size_t size) {
     void* mapped;
 
-    if (!pfn_valid(__phys_to_pfn(pa))) {
+    if (!pfn_valid(__phys_to_pfn(pa))) { //判断page是否是有些页
         return false;
     }
-    if (!__valid_phys_addr_range(pa, size)) {
+    if (!__valid_phys_addr_range(pa, size)) { //判断物理地址是否有效
         return false;
     }
-    mapped = ioremap_cache(pa, size);
+    mapped = ioremap_cache(pa, size); //将一个IO地址空间映射到内核的虚拟地址空间上去
     if (!mapped) {
         return false;
     }
