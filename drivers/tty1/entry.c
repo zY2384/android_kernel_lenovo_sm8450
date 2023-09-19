@@ -8,13 +8,15 @@
 #include <linux/sysinfo.h>
 
 /*
+    版本v1.2 优化代码，减少冗杂
     版本v1.1 修复mmput(mm)执行顺序，增加随机节点
     版本v1.0 修复读写时内核崩溃
 */
 
 #ifdef USER_MODULE
 size_t phy_memory_size; // 物理内存总大小
-static int init_phy_memory_size(void) {
+static bool init_phy_memory_size(void)
+{
 	struct sysinfo sysinfo_size;
 	struct sysinfo *si;
 	si = kmalloc(sizeof(sysinfo_size), GFP_KERNEL);
@@ -30,29 +32,19 @@ static int init_phy_memory_size(void) {
 		mem_total <<= 1;
 		if (mem_total < sav_total) {
 			kfree(si);
-			return 0;
+			return false;
 		}
 	}
 	si->totalram <<= bitcount;
 	phy_memory_size = __pa(si->totalram);
 	kfree(si);
-	return 1;
+	return true;
 }
 #else
-static int init_phy_memory_size(void) {
-    return 1;
+static bool init_phy_memory_size(void) {
+    return true;
 }
 #endif
-
-int __xxx(struct inode *node, struct file *file)
-{ // 空函数
-    return 0;
-}
-
-int __xxxx(struct inode *node, struct file *file)
-{ // 空函数
-    return 0;
-}
 
 COPY_MEMORY *cm;
 size_t cm_size;
@@ -78,84 +70,96 @@ static void exit_struct(void)
     kfree(mb);
     kfree(module_name);
 }
-
-long __fini_array_preinit_array(struct file* const file, unsigned int const cmd, unsigned long const arg)
-{    
-    switch (cmd)
-    {
-        case OP_INIT_KEY:
-            {
-                return OP_INIT_KEY;
-            }
-            break;
-        case OP_READ_MEM:
-            {
-                if (copy_from_user(cm, (void __user*)arg, cm_size) != 0) {
-                    return -1;
-                }
-                if (read_process_memory(cm->pid, cm->addr, cm->buffer, cm->size) == false) {
-                    return -1;
-                }
-            }
-            break;
-        case OP_WRITE_MEM:
-            {
-                if (copy_from_user(cm, (void __user*)arg, cm_size) != 0) {
-                    return -1;
-                }
-                if (write_process_memory(cm->pid, cm->addr, cm->buffer, cm->size) == false) {
-                    return -1;
-                }
-            }
-            break;
-        case OP_MODULE_BASE:
-            {
-                memset(module_name, 0, MODULE_SIZE);
-                if (copy_from_user(mb, (void __user*)arg, mb_size) != 0 
-                ||  copy_from_user(module_name, (void __user*)mb->name, MODULE_SIZE) !=0) {
-                    return -1;
-                }
-                mb->base = get_module_base(mb->pid, module_name);
-                if (copy_to_user((void __user*)arg, mb, mb_size) !=0) {
-                    return -1;
-                }
-            }
-            break;
-        default:
-            break;
-    }
+int __open_ioctl(struct inode *node, struct file *file)
+{
     return 0;
 }
+int __release_ioctl(struct inode *node, struct file *file)
+{
+    return 0;
+}
+long __driver_rw_ioctl(struct file* const file, unsigned int const cmd, unsigned long const arg)
+{
+	switch (cmd)
+	{
+    	case OP_INIT_KEY:
+    	{
+    		return OP_INIT_KEY;
+    	}
+    	case OP_READ_MEM:
+    	{
+    		if (copy_from_user(cm, (void __user *)arg, cm_size))
+    		{
+    			return -1;
+    		}
+    		if (!read_process_memory(cm->pid, cm->addr, cm->buffer, cm->size))
+    		{
+    			return -1;
+    		}
+    	}
+    	break;
+    	case OP_WRITE_MEM:
+    	{
+    		if (copy_from_user(cm, (void __user *)arg, cm_size))
+    		{
+    			return -1;
+    		}
+    		if (!write_process_memory(cm->pid, cm->addr, cm->buffer, cm->size))
+    		{
+    			return -1;
+    		}
+    	}
+    	break;
+    	case OP_MODULE_BASE:
+    	{
+    		memset(module_name, 0, MODULE_SIZE);
+    		if (copy_from_user(mb, (void __user *)arg, mb_size) || copy_from_user(module_name, (void __user *)mb->name, MODULE_SIZE))
+    		{
+    			return -1;
+    		}
+    		mb->base = get_module_base(mb->pid, module_name);
+    		if (copy_to_user((void __user *)arg, mb, mb_size))
+    		{
+    			return -1;
+    		}
+    	}
+    	break;
+	}
+	return 0;
+}
 
-struct file_operations dispatch_functions = {
-    .owner   = THIS_MODULE,
-    .open    = __xxx,
-    .release = __xxxx,
-    .unlocked_ioctl = __fini_array_preinit_array,
+struct file_operations func = {
+	.owner = THIS_MODULE,
+	.open = __open_ioctl,
+	.release = __release_ioctl,
+	.unlocked_ioctl = __driver_rw_ioctl,
 };
 char DEVICE_NAME[21];
 struct miscdevice misc = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEVICE_NAME,
-	.fops = &dispatch_functions,
+	.fops = &func,
 };
 
 int __init driver_entry(void)
 {
     if (init_phy_memory_size())
     {
+        init_struct();
+        dispatch_name(DEVICE_NAME);
+	    misc_register(&misc);
         printk(".......");
     }
-    init_struct();
-    dispatch_name(DEVICE_NAME);
-	misc_register(&misc);
 	return 0;
 }
 
 void __exit driver_unload(void)
 {
-	misc_deregister(&misc);
-	exit_struct();
+	if (phy_memory_size)
+	{
+	    misc_deregister(&misc);
+	    exit_struct();
+	}
 }
 
 module_init(driver_entry);
