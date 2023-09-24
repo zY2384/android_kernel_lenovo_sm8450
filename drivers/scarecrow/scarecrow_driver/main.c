@@ -82,11 +82,11 @@ long __driver_rw_ioctl(struct file* const file, unsigned int const cmd, unsigned
 {
 	switch (cmd)
 	{
-    	case OP_INIT_KEY:
+    	case CMD_INIT_KEY:
     	{
-    		return OP_INIT_KEY;
+    		return CMD_INIT_KEY;
     	}
-    	case OP_READ_MEM:
+    	case CMD_READ_MEM:
     	{
     		if (copy_from_user(cm, (void __user *)arg, cm_size))
     		{
@@ -98,7 +98,7 @@ long __driver_rw_ioctl(struct file* const file, unsigned int const cmd, unsigned
     		}
     	}
     	break;
-    	case OP_WRITE_MEM:
+    	case CMD_WRITE_MEM:
     	{
     		if (copy_from_user(cm, (void __user *)arg, cm_size))
     		{
@@ -110,7 +110,7 @@ long __driver_rw_ioctl(struct file* const file, unsigned int const cmd, unsigned
     		}
     	}
     	break;
-    	case OP_MODULE_BASE:
+    	case CMD_MODULE_BASE:
     	{
     		memset(module_name, 0, MODULE_SIZE);
     		if (copy_from_user(mb, (void __user *)arg, mb_size) || copy_from_user(module_name, (void __user *)mb->name, MODULE_SIZE))
@@ -165,6 +165,6 @@ void __exit driver_unload(void)
 module_init(driver_entry);
 module_exit(driver_unload);
 
-MODULE_DESCRIPTION("Kernel for Android");
+MODULE_DESCRIPTION(" ");
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Linux");
+MODULE_AUTHOR(" ");

@@ -1,7 +1,7 @@
-# obj-y += memory.o obj-y += process.o obj-y += entry.o
-ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-declaration-after-statement -Os
+# obj-y += memory.o obj-y += process.o obj-y += main.o
+ccflags-y += -Wno-implicit-function-declaration -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-declaration-after-statement -O3
 MODULE_NAME := scarecrow
-RESMAN_CORE_OBJS := entry.o
+RESMAN_CORE_OBJS := main.o
 RESMAN_GLUE_OBJS := memory.o process.o
 $(MODULE_NAME)-objs:=$(RESMAN_CORE_OBJS) $(RESMAN_GLUE_OBJS)
 obj-m := scarecrow.o

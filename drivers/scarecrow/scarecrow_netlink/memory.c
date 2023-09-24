@@ -1,0 +1,286 @@
+#include "memory.h"
+
+extern struct mm_struct *get_task_mm(struct task_struct *task);
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 61))
+extern void mmput(struct mm_struct *); // 用于减少一次对应的任务引用mm_struct所对应的用户次数，如果用户数为0则收回该内存；
+
+static inline phys_addr_t translate_linear_address(struct mm_struct *mm, uintptr_t va)
+{
+	pgd_t *pgd;
+	p4d_t *p4d;
+	pmd_t *pmd;
+	pte_t *pte;
+	pud_t *pud;
+
+	phys_addr_t page_addr;
+	uintptr_t page_offset;
+
+	pgd = pgd_offset(mm, va);
+	if (pgd_none(*pgd) || pgd_bad(*pgd))
+	{
+		return 0;
+	}
+	p4d = p4d_offset(pgd, va);
+	if (p4d_none(*p4d) || p4d_bad(*p4d))
+	{
+		return 0;
+	}
+	pud = pud_offset(p4d, va);
+	if (pud_none(*pud) || pud_bad(*pud))
+	{
+		return 0;
+	}
+	pmd = pmd_offset(pud, va);
+	if (pmd_none(*pmd))
+	{
+		return 0;
+	}
+	pte = pte_offset_kernel(pmd, va);
+	if (pte_none(*pte))
+	{
+		return 0;
+	}
+	if (!pte_present(*pte))
+	{
+		return 0;
+	}
+	//页物理地址
+	page_addr = (phys_addr_t)(pte_pfn(*pte) << PAGE_SHIFT);
+	//页内偏移
+	page_offset = va & (PAGE_SIZE - 1);
+
+	return page_addr + page_offset;
+}
+#else
+static inline phys_addr_t translate_linear_address(struct mm_struct *mm, uintptr_t va)
+{
+	pgd_t *pgd;
+	pmd_t *pmd;
+	pte_t *pte;
+	pud_t *pud;
+
+	phys_addr_t page_addr;
+	uintptr_t page_offset;
+
+	pgd = pgd_offset(mm, va);
+	if (pgd_none(*pgd) || pgd_bad(*pgd))
+	{
+		return 0;
+	}
+	pud = pud_offset(pgd, va);
+	if (pud_none(*pud) || pud_bad(*pud))
+	{
+		return 0;
+	}
+	pmd = pmd_offset(pud, va);
+	if (pmd_none(*pmd))
+	{
+		return 0;
+	}
+	pte = pte_offset_kernel(pmd, va);
+	if (pte_none(*pte))
+	{
+		return 0;
+	}
+	if (!pte_present(*pte))
+	{
+		return 0;
+	}
+	//页物理地址
+	page_addr = (phys_addr_t)(pte_pfn(*pte) << PAGE_SHIFT);
+	//页内偏移
+	page_offset = va & (PAGE_SIZE - 1);
+
+	return page_addr + page_offset;
+}
+#endif
+
+#ifdef USER_MODULE
+/*
+    由于valid_phys_addr_range这个函数内核没有导出符号，
+    所以编译成模块后是无法使用的，
+    故我们重新实现它。
+    若直接编译进入Boot，则使用内核的即可。
+    吐槽：现在好多读写都可以被检测，实际就是某些傻狗不懂装懂，内核写法嘛又不会，为了可以成功编译，不加这个有效内存判断或者把人家开源写得比较好的东西注释掉。
+    注：该函数不能注释，失去该函数的读写将是无意义的。
+*/
+static inline int __valid_phys_addr_range(phys_addr_t addr, size_t count)
+{
+	return addr + count < __pa(phy_memory_size);
+}
+
+static inline bool read_physical_address(phys_addr_t pa, void *buffer, size_t size)
+{
+	void *mapped;
+
+	if (!pfn_valid(__phys_to_pfn(pa)))
+	{
+		return false;
+	}
+	if (!__valid_phys_addr_range(pa, size))
+	{
+		return false;
+	}
+	mapped = ioremap_cache(pa, size);
+	if (!mapped)
+	{
+		return false;
+	}
+	if (!memcpy(buffer, mapped, size))
+	{
+		iounmap(mapped);
+		return false;
+	}
+	iounmap(mapped);
+	return true;
+}
+
+static inline bool write_physical_address(phys_addr_t pa, void *buffer, size_t size)
+{
+	void *mapped;
+
+	if (!pfn_valid(__phys_to_pfn(pa)))
+	{ //判断page是否是有些页
+		return false;
+	}
+	if (!__valid_phys_addr_range(pa, size))
+	{ //判断物理地址是否有效
+		return false;
+	}
+	mapped = ioremap_cache(pa, size); //将一个IO地址空间映射到内核的虚拟地址空间上去
+	if (!mapped)
+	{
+		return false;
+	}
+	if (!memcpy(mapped, buffer, size))
+	{
+		iounmap(mapped);
+		return false;
+	}
+	iounmap(mapped);
+	return true;
+}
+#else
+static inline bool read_physical_address(phys_addr_t pa, void *buffer, size_t size)
+{
+	void *mapped;
+
+	if (!pfn_valid(__phys_to_pfn(pa)))
+	{
+		return false;
+	}
+	if (!valid_phys_addr_range(pa, size))
+	{
+		return false;
+	}
+	mapped = ioremap_cache(pa, size);
+	if (!mapped)
+	{
+		return false;
+	}
+	if (!memcpy(buffer, mapped, size))
+	{
+		iounmap(mapped);
+		return false;
+	}
+	iounmap(mapped);
+	return true;
+}
+
+static inline bool write_physical_address(phys_addr_t pa, void *buffer, size_t size)
+{
+	void *mapped;
+
+	if (!pfn_valid(__phys_to_pfn(pa)))
+	{
+		return false;
+	}
+	if (!valid_phys_addr_range(pa, size))
+	{
+		return false;
+	}
+	mapped = ioremap_cache(pa, size);
+	if (!mapped)
+	{
+		return false;
+	}
+	if (!memcpy(mapped, buffer, size))
+	{
+		iounmap(mapped);
+		return false;
+	}
+	iounmap(mapped);
+	return true;
+}
+#endif
+
+bool read_process_memory(
+	pid_t pid,
+	uintptr_t addr,
+	void *buffer,
+	size_t size)
+{
+	struct task_struct *task;
+	struct mm_struct *mm;
+	struct pid *pid_struct;
+	phys_addr_t pa;
+
+	pid_struct = find_get_pid(pid);
+	if (!pid_struct)
+	{
+		return false;
+	}
+	task = get_pid_task(pid_struct, PIDTYPE_PID);
+	if (!task)
+	{
+		return false;
+	}
+	mm = get_task_mm(task);
+	if (!mm)
+	{
+		return false;
+	}
+	pa = translate_linear_address(mm, addr);
+	mmput(mm);
+	if (!pa)
+	{
+		return false;
+	}
+	return read_physical_address(pa, buffer, size);
+}
+
+bool write_process_memory(
+	pid_t pid,
+	uintptr_t addr,
+	void *buffer,
+	size_t size)
+{
+	struct task_struct *task;
+	struct mm_struct *mm;
+	struct pid *pid_struct;
+	phys_addr_t pa;
+
+	pid_struct = find_get_pid(pid);
+	if (!pid_struct)
+	{
+		return false;
+	}
+	task = get_pid_task(pid_struct, PIDTYPE_PID);
+	if (!task)
+	{
+		return false;
+	}
+	mm = get_task_mm(task);
+	if (!mm)
+	{
+		return false;
+	}
+	pa = translate_linear_address(mm, addr);
+	mmput(mm);
+	if (!pa)
+	{
+		return false;
+	}
+	return write_physical_address(pa, buffer, size);
+}
