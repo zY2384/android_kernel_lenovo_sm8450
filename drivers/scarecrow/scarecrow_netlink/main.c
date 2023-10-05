@@ -137,24 +137,59 @@ int __init driver_entry(void)
         }
         #endif
         cfg->input = __nl_recv_msg;
-        for (int j = 0; j < 3; j++) //注册三组读写以供多线程使用
+        int i;
+        int j;
+        for (j = 0; j < 3; j++) //注册三组读写以供多线程使用
         {
-            for (int i = 31; i > 0; i--)
+            for (i = 31; i > 0; i--)
             {
                 nl_sk[j] = netlink_kernel_create(&init_net, i, cfg);
                 if (nl_sk[j])
                     break;
             }
         }
-        #ifdef USER_DEBUG
-        if (nl_sk)
+        for (j = 0; j < 3; j++) //验证三组读写是否注册成功
         {
-            printk("kernel_netlink_rw: netlink_kernel_create ok");
-        }else
-        {
-            printk("kernel_netlink_rw: netlink_kernel_create err");
+            if (nl_sk[j])
+            {
+                #ifdef USER_DEBUG
+                printk("kernel_netlink_rw: netlink_kernel_create %d ok", j);
+                #endif
+            }else
+            {
+                #ifdef USER_DEBUG
+                printk("kernel_netlink_rw: netlink_kernel_create %d err", j);
+                #endif
+                if (j == 2)
+                    j = 0;
+            }
         }
-        #endif
+        if (!j)
+        {
+            #ifdef USER_DEBUG
+            printk("kernel_netlink_rw: option two netlink_kernel_create");
+            #endif
+            cfg_size.input = __nl_recv_msg;
+            for (j = 0; j < 3; j++) //切换为由内核自行分配内存的方式进行 注册三组读写以供多线程使用
+            {
+                for (i = 31; i > 0; i--)
+                {
+                    nl_sk[j] = netlink_kernel_create(&init_net, i, &cfg_size);
+                    if (nl_sk[j])
+                        break;
+                }
+            }
+            #ifdef USER_DEBUG
+            if (nl_sk[0])
+            {
+                printk("kernel_netlink_rw: netlink_kernel_create ok");
+            }else
+            {
+                printk("kernel_netlink_rw: netlink_kernel_create err");
+            }
+            #endif
+        }
+        
         printk("kernel_netlink_rw: load finished");
     }
 	return 0;
