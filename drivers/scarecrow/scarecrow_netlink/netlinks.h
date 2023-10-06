@@ -33,5 +33,5 @@ struct Process
 
 struct sock **nl_sk; // Netlink套接字
 struct netlink_kernel_cfg *cfg = NULL; // Netlink结构信息
-
+struct netlink_kernel_cfg cfg_size;
 #endif

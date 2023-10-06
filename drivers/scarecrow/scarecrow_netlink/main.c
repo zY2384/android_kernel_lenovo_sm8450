@@ -124,9 +124,9 @@ int __init driver_entry(void)
         #ifdef USER_DEBUG
         printk("kernel_netlink_rw: load...");
         #endif
-        struct netlink_kernel_cfg cfg_size;
+        struct sock nl_sk_size;
         cfg = kmalloc(sizeof(cfg_size), GFP_KERNEL);
-        nl_sk = kmalloc(3, GFP_KERNEL);
+        nl_sk = kmalloc(3 * sizeof(nl_sk_size), GFP_KERNEL);
         #ifdef USER_DEBUG
         if (cfg)
         {
