@@ -161,7 +161,10 @@ int __init driver_entry(void)
                 printk("kernel_netlink_rw: netlink_kernel_create %d err", j);
                 #endif
                 if (j == 2)
+                {
                     j = 0;
+                    break;
+                }
             }
         }
         if (!j)
