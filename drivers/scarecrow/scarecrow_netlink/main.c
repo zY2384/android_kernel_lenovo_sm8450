@@ -137,8 +137,7 @@ int __init driver_entry(void)
         }
         #endif
         cfg->input = __nl_recv_msg;
-        int i;
-        int j;
+        int i,j;
         for (j = 0; j < 3; j++) //注册三组读写以供多线程使用
         {
             for (i = 31; i > 0; i--)
