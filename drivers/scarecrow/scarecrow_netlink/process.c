@@ -10,6 +10,12 @@ extern struct mm_struct *get_task_mm(struct task_struct *task);
 extern void mmput(struct mm_struct *);
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+uintptr_t get_module_base(pid_t pid, char *name)
+{
+    return 0;
+}
+#else
 uintptr_t get_module_base(pid_t pid, char *name)
 {
 	struct pid *pid_struct;
@@ -50,3 +56,4 @@ uintptr_t get_module_base(pid_t pid, char *name)
 	kfree(buf);
 	return 0;
 }
+#endif
