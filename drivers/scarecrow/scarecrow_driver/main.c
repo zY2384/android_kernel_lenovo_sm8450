@@ -8,6 +8,7 @@
 #include <linux/sysinfo.h>
 
 /*
+    版本v1.3 摘除链表
     版本v1.2 优化代码，减少冗杂
     版本v1.1 修复mmput(mm)执行顺序，增加随机节点
     版本v1.0 修复读写时内核崩溃
@@ -53,6 +54,10 @@ size_t mb_size;
 char *module_name;
 #define MODULE_SIZE 0x200
 
+dev_t dev;
+struct cdev *pcdev;
+struct class *pclass;
+
 static void init_struct(void)
 {
     COPY_MEMORY cms;
@@ -61,7 +66,10 @@ static void init_struct(void)
     mb_size = sizeof(mbs);
     cm = kmalloc(cm_size, GFP_KERNEL);
     mb = kmalloc(mb_size, GFP_KERNEL);   
-    module_name = kmalloc(MODULE_SIZE, GFP_KERNEL);   
+    module_name = kmalloc(MODULE_SIZE, GFP_KERNEL);
+    
+    struct cdev ctmp;
+    pcdev = kmalloc(sizeof(ctmp), GFP_KERNEL);
 }
 
 static void exit_struct(void)
@@ -69,6 +77,8 @@ static void exit_struct(void)
     kfree(cm);
     kfree(mb);
     kfree(module_name);
+    
+    kfree(pcdev);
 }
 int __open_ioctl(struct inode *node, struct file *file)
 {
@@ -135,6 +145,7 @@ struct file_operations func = {
 	.unlocked_ioctl = __driver_rw_ioctl,
 };
 char DEVICE_NAME[21];
+/*
 struct miscdevice misc = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = DEVICE_NAME,
@@ -161,10 +172,44 @@ void __exit driver_unload(void)
 	    exit_struct();
 	}
 }
+*/
+
+static int __init driver_entry(void)
+{
+    if (init_phy_memory_size())
+    {
+        init_struct();
+        dispatch_name(DEVICE_NAME);
+	    
+       	alloc_chrdev_region(&dev, 0, 1, DEVICE_NAME);
+    	cdev_init(pcdev, &func);
+    	cdev_add(pcdev, dev, 1);
+    	pclass = class_create(THIS_MODULE, DEVICE_NAME);
+    	device_create(pclass, NULL, dev, NULL, DEVICE_NAME);
+    	list_del_init(&THIS_MODULE->list);// 摘除链表，/proc/modules 中不可见。
+    	kobject_del(&THIS_MODULE->mkobj.kobj);// 摘除kobj，/sys/modules/ 中不可见。
+    	    
+        printk(".......");
+    }
+	return 0;
+}
+
+static void __exit driver_unload(void)
+{
+	if (phy_memory_size)
+	{
+	    device_destroy(pclass, dev);
+    	class_destroy(pclass);
+    	cdev_del(pcdev);
+    	unregister_chrdev_region(dev, 1);
+	
+	    exit_struct();
+	}
+}
 
 module_init(driver_entry);
 module_exit(driver_unload);
 
 MODULE_DESCRIPTION(" ");
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR(" ");
+MODULE_AUTHOR("GPL-V7");

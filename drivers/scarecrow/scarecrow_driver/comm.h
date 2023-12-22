@@ -15,8 +15,8 @@ typedef struct _MODULE_BASE
 
 enum CMD
 {
-    CMD_INIT_KEY = 0x1000,
-    CMD_READ_MEM = 0x2000,
-    CMD_WRITE_MEM = 0x3000,
-    CMD_MODULE_BASE = 0x4000,
+    CMD_INIT_KEY = 0xA100,
+    CMD_READ_MEM = 0xA200,
+    CMD_WRITE_MEM = 0xA300,
+    CMD_MODULE_BASE = 0xA400,
 };
